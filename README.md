@@ -31,6 +31,7 @@ AI Energy Management Platform/
 - Los CSV se parsean y se cargan **en memoria** al iniciar el servidor (sin base de datos externa).
 - Motor de reglas en `backend/src/services/analytics.service.ts`.
 - Rutas REST en `backend/src/routes/*`.
+- jest para  testing de endpoints
 
 **Frontend**
 - React 18 + Vite + TypeScript.
@@ -99,6 +100,26 @@ Respuesta del analisis de IA:
   "recommended_action": "..."
 }
 ```
+
+### Tests de endpoints
+
+```bash
+cd backend
+npm test
+```
+
+Los tests (Jest + Supertest, en `backend/tests/`) deberian responder **16 passed**. Cada endpoint se valida asi:
+
+| Endpoint | Respuesta esperada |
+|---|---|
+| `GET /api/health` | `200` con `{ "status": "ok" }` |
+| `GET /api/dashboard/summary` | `200` con `total_meters: 12` y los campos del resumen |
+| `GET /api/meters` | `200` con 12 medidores; filtros `search`/`severity` aplicados; `400` si la severidad es invalida |
+| `GET /api/meters/:meterId` | `200` con el detalle; `404` si no existe (ej. `M-999`) |
+| `GET /api/meters/:meterId/readings` | `200` con lecturas ordenadas por fecha; `404` si no existe |
+| `GET /api/anomalies` | `200` sin `Normal Operation`; incluye M-106 como `False Positive` |
+| `POST /api/ai/analyze` | `200` con 12 reportes (sin body) o uno solo (`meter_id`); `404` si no existe |
+| Ruta desconocida | `404` con `{ "error": "Not found" }` |
 
 ## 5. Acceso a la aplicacion
 
